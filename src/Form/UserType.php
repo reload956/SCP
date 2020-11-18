@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Form;
+
+use App\Entity\User;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+class UserType extends AbstractType
+{
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('email',EmailType::class)
+            ->add('username',TextType::class)
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['label' => 'Password'],
+                'second_options' => ['label' => 'Confirm Password']
+            ])
+            ->add('name',TextType::class)
+            ->add('surname',TextType::class)
+            ->add('patronymic',TextType::class)
+            ->add('cash',MoneyType::class,
+                ['currency' => 'RUB']);
+    }
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => User::class,
+        ]);
+    }
+}
+
+
+
+
+/**
+ * // src/Form/Type/TaskType.php
+namespace App\Form\Type;
+
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+// ...
+
+class TaskType extends AbstractType
+{
+public function buildForm(FormBuilderInterface $builder, array $options)
+{
+$builder->add('tags', TextType::class);
+
+$builder->get('tags')
+->addModelTransformer(new CallbackTransformer(
+function ($tagsAsArray) {
+// transform the array to a string
+return implode(', ', $tagsAsArray);
+},
+function ($tagsAsString) {
+// transform the string back to an array
+return explode(', ', $tagsAsString);
+}
+))
+;
+}
+
+// ...
+}
+
+ */
