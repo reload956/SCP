@@ -3,34 +3,58 @@
 namespace App\Form;
 
 use App\Entity\Product;
-use App\Form\Type\DateTimePickerType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Form\Type\TagsInputType;
 
 class ProductType extends AbstractType
 {
+    private $slugger;
+
+    // Form types are services, so you can inject other services in them if needed
+    public function __construct(SluggerInterface $slugger)
+    {
+        $this->slugger = $slugger;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder
+            ->add('created_at',DateTimeType::class)
             ->add('name',TextType::class)
             ->add('summary',TextType::class)
             ->add('price',MoneyType::class)
-            ->add('description',TextType::class)
-            ->add('created_at',DateTimePickerType::class)
-            ->add('image_form', FileType::class, [
-                'data_class' => null,
-                'required' => false
-            ])
+            ->add('description',TextareaType::class)
+            ->add('summary',TextType::class)
+            ->add('image_form', FileType::class, ['required' => true])
             ->add('quantity',IntegerType::class)
-            ->add('category',EntityType::class,
-                ['class'=>'App\Entity\Category'])
+            ->add('category',EntityType::class, ['class'=>'App\Entity\Category'])
+            ->add('tags', TagsInputType::class, [
+                'label' => 'label.tags',
+                'required' => false,
+            ])
+            ->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+                /** @var Product */
+                $product = $event->getData();
+                if (null !== $ProductTitle = $product->getName()) {
+                    $product->setSlug($this->slugger->slug($ProductTitle)->lower());
+                }
+            })
         ;
     }
 
@@ -41,3 +65,4 @@ class ProductType extends AbstractType
         ]);
     }
 }
+

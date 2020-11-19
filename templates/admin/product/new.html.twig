@@ -16,6 +16,12 @@
     </div>
     <div class="form_group">
         <div class="col-md-12 mb-48">
+            {{ form_row(form.summary, {'attr': {'class':
+                'form-control'}}) }}
+        </div>
+    </div>
+    <div class="form_group">
+        <div class="col-md-12 mb-48">
             {{ form_row(form.description, {'attr': {'class':
                 'form-control'}}) }}
         </div>
@@ -33,33 +39,39 @@
     </div>
 </div>
     <div class="form_group">
-    <div class="col-md-12 mb-3">
-        {{ form_row(form.image_form, {'attr': {'class':
-            'form-control'}}) }}
-    </div>
-</div>
-    <div class="form_group">
         <div class="col-md-12 mb-3">
             {{ form_row(form.quantity, {'attr': {'class':
                 'form-control'}}) }}
         </div>
     </div>
     <div class="form_group">
-        <div class="col-md-12 mb-3" style="margin-bottom: 30px">
+        <div class="col-md-6 mb-3"style="margin-right: 100%; margin-bottom: 30px">
+            {{ form_row(form.image_form, {'attr': {'class':
+                'form-control'}}) }}
+        </div>
+    </div>
+    <div class="group_form">
+        <div class="col-md-6 md-3"style="margin-right: 100%; margin-bottom: 40px">
             {{ form_row(form.created_at, {'attr': {'class':
                 'form-control'}}) }}
         </div>
     </div>
-
+    <div class="group_form">
+        <div class="col-md-12 md-3"style="margin-right: 100%; margin-bottom: 40px">
+            {{ form_row(form.tags, {'attr': {'class':
+                'form-control'}}) }}
+        </div>
+    </div>
 
         <button type="submit" class="btn btn-primary">
             <i class="fa fa-save" aria-hidden="true"></i> ADD PRODUCT
         </button>
         {{ form_widget(form.saveAndCreateNew, {label: 'SAVE AND CONTINUE', attr: {class: 'btn btn-primary'}}) }}
-        <a href="{{ path('admin_post_index') }}" class="btn btn-link">
+        <a href="{{ path('admin_product_index') }}" class="btn btn-link">
             <i class="fa fa-list-alt" aria-hidden="true"></i> BACK TO HOMEPAGE
         </a>
 </div>
+    {{ form_end(form) }}
 
 {% endblock %}
 

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Event\CommentCreatedEvent;
+use App\Repository\TagRepository;
 use Symfony\Component\Form\FormError;
 use App\Repository\ProductRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
@@ -24,9 +25,13 @@ class ProductController extends AbstractController
      * @Route("/page/{page<[1-9]\d*>}", defaults={"_format"="html"}, methods="GET", name="product_index_paginated")
      * @Cache(smaxage="10")
      */
-    public function index(Request $request, int $page, string $_format, ProductRepository $products): Response
+    public function index(Request $request, int $page, string $_format, ProductRepository $products,TagRepository $tags): Response
     {
+
         $tag = null;
+        if ($request->query->has('tag')) {
+            $tag = $tags->findOneBy(['name' => $request->query->get('tag')]);
+        }
         $latestProducts = $products->findLatest($page, $tag);
 
         return $this->render('product/index.html.twig', [

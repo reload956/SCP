@@ -22,7 +22,7 @@ class AdminController extends AbstractController
 {
     /**
      * @Route("/", methods="GET", name="admin_index")
-     * @Route("/", methods="GET", name="admin_post_index")
+     * @Route("/", methods="GET", name="admin_product_index")
      */
     public function index(ProductRepository $products): Response
     {
@@ -42,6 +42,9 @@ class AdminController extends AbstractController
      */
     public function new(Request $request): Response
     {
+
+
+
         $product = new Product();
         // See https://symfony.com/doc/current/form/multiple_buttons.html
         $form = $this->createForm(ProductType::class, $product)
@@ -49,29 +52,36 @@ class AdminController extends AbstractController
 
         $form->handleRequest($request);
 
+        if ($form->isSubmitted()&& $form->isValid()){
+            /** @var UploadedFile $file */
+            $file = $form->get('image_form')->getData();
+            if (!$file) {
+                $form->get('image_form')->addError(new FormError('Image is required'));
+            } else {
+                $filename = md5($product->getName() . '' . $product->getCreatedAt()->format("Y-m-d H:i:s"));
 
-        // the isSubmitted() method is completely optional because the other
-        // isValid() method already checks whether the form is submitted.
-        // However, we explicitly add it to improve code readability.
-        // See https://symfony.com/doc/current/forms.html#processing-forms
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($product);
-            $em->flush();
+                $file->move($this->getParameter('brochures_directory'),
+                    $filename
+                );
 
-            // Flash messages are used to notify the user about the result of the
-            // actions. They are deleted automatically from the session as soon
-            // as they are accessed.
-            // See https://symfony.com/doc/current/controller.html#flash-messages
-            $this->addFlash('success', 'post.created_successfully');
-
-            if ($form->get('saveAndCreateNew')->isClicked()) {
-                return $this->redirectToRoute('admin_product_new');
+                $product->setImage($filename);
             }
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($product);
+                $em->flush();
 
-            return $this->redirectToRoute('admin_product_index');
-        }
+                // Flash messages are used to notify the user about the result of the
+                // actions. They are deleted automatically from the session as soon
+                // as they are accessed.
+                // See https://symfony.com/doc/current/controller.html#flash-messages
+                $this->addFlash('success', 'product added successfully');
 
+                if ($form->get('saveAndCreateNew')->isClicked()) {
+                    return $this->redirectToRoute('admin_product_new');
+                }
+
+                return $this->redirectToRoute('admin_product_index');
+            }
         return $this->render('admin/product/new.html.twig', [
             'products' => $product,
             'form' => $form->createView(),
@@ -87,7 +97,7 @@ class AdminController extends AbstractController
     {
         // This security check can also be performed
         // using an annotation: @IsGranted("show", subject="post", message="Posts can only be shown to their authors.")
-        $this->denyAccessUnlessGranted(PostVoter::SHOW, $product, 'Posts can only be shown to their authors.');
+
 
         return $this->render('admin/product/show.html.twig', [
             'products' => $product,
@@ -97,7 +107,7 @@ class AdminController extends AbstractController
     /**
      * Displays a form to edit an existing Post entity.
      *
-     * @Route("/{id<\d+>}/edit", methods="GET|POST", name="admin_post_edit")
+     * @Route("/{id<\d+>}/edit", methods="GET|POST", name="admin_product_edit")
      * @IsGranted("edit", subject="post", message="Posts can only be edited by their authors.")
      */
     public function edit(Request $request, Product $product): Response
@@ -146,3 +156,4 @@ class AdminController extends AbstractController
     }
 
 }
+

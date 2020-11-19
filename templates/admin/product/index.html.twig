@@ -17,12 +17,12 @@
         <tbody>
         {% for product in products %}
             <tr>
-                <td><img src="/images/products/{{ product.image }}" style="width: 50px;"></td>
-                <td>{{ product.title }}</td>
+                <td><img src="/home/igor/Docs/SCP/public/uploads/brochures/{{ product.image }}" style="width: 100px;"></td>
+                <td>{{ product.tags|join(', ') }}{{ product.name }}</td>
                 {# it's not mandatory to set the timezone in localizeddate(). This is done to
                    avoid errors when the 'intl' PHP extension is not available and the application
                    is forced to use the limited "intl polyfill", which only supports UTC and GMT #}
-                <td>{{ product.created_at|format_datetime('medium', 'short', '', 'UTC') }}</td>
+                <td>{{product.summary}}</td>
                 <td class="text-right">
                     <div class="item-actions">
                         <a href="{{ path('admin_product_show', {id: product.id}) }}" class="btn btn-sm btn-default">
