@@ -7,6 +7,7 @@ use App\Pagination\Paginator;
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Symfony\Component\String\u;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,22 +20,6 @@ class ProductRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Product::class);
-    }
-
-    public function findLatest(int $page = 1, Tag $tag = null): Paginator
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->select('p')
-            ->where('p.quantity > 0')
-            ->setParameter('now', new \DateTime())
-        ;
-
-        if (null !== $tag) {
-            $qb->andWhere(':tag MEMBER OF p.tags')
-                ->setParameter('tag', $tag);
-        }
-
-        return (new Paginator($qb))->paginate($page);
     }
 
     /**

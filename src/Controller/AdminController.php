@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Form\ProductType;
-use App\Repository\ProductRepository;
+use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,8 +14,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
+
+
     /**
-     * @Route("/admin/post")
+     * @Route("/Admin")
      * @IsGranted("ROLE_ADMIN")
      */
 class AdminController extends AbstractController
@@ -24,9 +27,19 @@ class AdminController extends AbstractController
      * @Route("/", methods="GET", name="admin_index")
      * @Route("/", methods="GET", name="admin_product_index")
      */
-    public function index(ProductRepository $products): Response
+    public function index(Request $request, PaginatorInterface $paginator): Response
     {
-        $Products = $products->findAll();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $ProductRepository = $em->getRepository(Product::class);
+
+        $ProductsQuery=$ProductRepository->createQueryBuilder('p')
+            ->getQuery();
+
+        $Products=$paginator->paginate($ProductsQuery,$request->query
+
+            ->getInt('page',1),10);
 
         return $this->render('admin/product/index.html.twig', ['products' => $Products]);
     }

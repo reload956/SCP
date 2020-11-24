@@ -60,6 +60,8 @@ class User implements UserInterface
      */
     private $cash;
 
+
+
     public function getId(): ?int
     {
         return $this->id;

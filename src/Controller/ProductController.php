@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Entity\Comment;
 use App\Event\CommentCreatedEvent;
-use App\Repository\TagRepository;
-use Symfony\Component\Form\FormError;
+use App\Form\CommentType;
+use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\ProductRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -15,8 +16,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ @Route("/product")
+ */
+const MaxPage=10;
 
 class ProductController extends AbstractController
 {
@@ -25,29 +29,31 @@ class ProductController extends AbstractController
      * @Route("/page/{page<[1-9]\d*>}", defaults={"_format"="html"}, methods="GET", name="product_index_paginated")
      * @Cache(smaxage="10")
      */
-    public function index(Request $request, int $page, string $_format, ProductRepository $products,TagRepository $tags): Response
+    public function index(Request $request, PaginatorInterface $paginator): Response
     {
+        $em = $this->getDoctrine()->getManager();
 
-        $tag = null;
-        if ($request->query->has('tag')) {
-            $tag = $tags->findOneBy(['name' => $request->query->get('tag')]);
-        }
-        $latestProducts = $products->findLatest($page, $tag);
+        $ProductRepository = $em->getRepository(Product::class);
+
+        $ProductsQuery=$ProductRepository->createQueryBuilder('p')
+            ->where("p.quantity > 0")
+            ->getQuery();
+
+        $Products=$paginator->paginate($ProductsQuery,$request->query
+
+            ->getInt('page',1),MaxPage);
 
         return $this->render('product/index.html.twig', [
-            'paginator' => $latestProducts,
-            'tagName' => $tag ? $tag->getName() : null,
-        ]);
+            'products' => $Products]);
     }
 
     /**
-     * @Route("/product/{slug}", methods="GET", name="product_post")
+     * @Route("/product/{slug}", methods="GET", name="product_info")
      */
-    public function postShow(Product $product): Response
+    public function productShow(Product $product): Response
     {
         return $this->render('product/product_show.html.twig', ['product' => $product]);
     }
-
     /**
      * @Route("/comment/{productSlug}/new", methods="POST", name="comment_new")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
@@ -56,7 +62,7 @@ class ProductController extends AbstractController
     public function commentNew(Request $request, Product $product, EventDispatcherInterface $eventDispatcher): Response
     {
         $comment = new Comment();
-        $comment->setUserId($this->getUser());
+        $comment->setAuthor($this->getUser());
         $product->addComment($comment);
 
         $form = $this->createForm(CommentType::class, $comment);

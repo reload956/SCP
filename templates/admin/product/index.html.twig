@@ -10,7 +10,8 @@
             <tr>
                 <th scope="col">IMAGE</th>
                 <th scope="col">NAME</th>
-                <th scope="col"><i class="fa fa-calendar" aria-hidden="true"></i> DATE CREATED</th>
+                <th scope="col"><i class="fa fa-calendar" aria-hidden="true"></i> SUMMARY</th>
+                <th scope="col"><i class="fa fa-money" aria-hidden="true"></i>PRICE</th>
                 <th scope="col" class="text-center"><i class="fa fa-cogs" aria-hidden="true"></i> ACTIONS AVAILABLE</th>
             </tr>
         </thead>
@@ -18,11 +19,12 @@
         {% for product in products %}
             <tr>
                 <td><img src="/home/igor/Docs/SCP/public/uploads/brochures/{{ product.image }}" style="width: 100px;"></td>
-                <td>{{ product.tags|join(', ') }}{{ product.name }}</td>
+                <td>{{ product.name }}</td>
                 {# it's not mandatory to set the timezone in localizeddate(). This is done to
                    avoid errors when the 'intl' PHP extension is not available and the application
                    is forced to use the limited "intl polyfill", which only supports UTC and GMT #}
                 <td>{{product.summary}}</td>
+                <td>{{product.price}}
                 <td class="text-right">
                     <div class="item-actions">
                         <a href="{{ path('admin_product_show', {id: product.id}) }}" class="btn btn-sm btn-default">
