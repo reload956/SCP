@@ -6,14 +6,18 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @ORM\Table(name="product")
+ * @UniqueEntity("name")
  */
 class Product
 {
     /**
+     * Product
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -29,6 +33,12 @@ class Product
      * @ORM\Column(type="string", length=255)
      */
     private $slug;
+
+    /**
+     * @ORM\ManyToOne(targetEntity= User::class, inversedBy="products")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -85,7 +95,7 @@ class Product
      * @var Comment[]|Collection
      * @ORM\OneToMany(
      *      targetEntity="App\Entity\Comment",
-     *      mappedBy="post",
+     *      mappedBy="product",
      *      orphanRemoval=true,
      *      cascade={"persist"}
      * )
@@ -266,7 +276,7 @@ class Product
     {
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
-            $comment->setPost($this);
+            $comment->setProduct($this);
         }
 
         return $this;
@@ -276,10 +286,22 @@ class Product
     {
         if ($this->comments->removeElement($comment)) {
             // set the owning side to null (unless already changed)
-            if ($comment->getPost() === $this) {
-                $comment->setPost(null);
+            if ($comment->getProduct() === $this) {
+                $comment->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

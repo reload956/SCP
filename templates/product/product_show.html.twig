@@ -3,11 +3,26 @@
 {% block body_id 'blog_post_show' %}
 
 {% block main %}
-    <h1>{{ product.name }}</h1>
-    
+<article class="well">
+    <td><img src="public\uploads\brochures\{{ product.image }}"style="width: 250px;margin-right: 50%">
+        <a href="{{ path('cart_add',{slug: product.slug}) }}"class="btn btn-primary" type="submit" style="margin-right: 10px">
+            <i class="fa fa-money" aria-hidden="true"></i>
+            {{ product.price }}
+        </a>
+    </td>
+
+        <h1>{{ product.name }}</h1>
+
+        {{ include('product/_product_tags.html.twig') }}
+</article>
+    <article class="well">
+    <i class="fa fa-info">
+        {{ product.description|markdown_to_html}}
+    </i>
+
+</article>
 
 
-    {{ include('product/_product_tags.html.twig') }}
 
     <div id="post-add-comment" class="well">
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
@@ -15,47 +30,35 @@
         {% else %}
             <p>
                 <a class="btn btn-success" href="{{ path('app_login', {'redirect_to': app.request.pathInfo}) }}">
-                    <i class="fa fa-sign-in" aria-hidden="true"></i> {{ 'action.sign_in'|trans }}
+                    <i class="fa fa-sign-in" aria-hidden="true"></i> Login
                 </a>
-                publish comment
+                only authorized users can publish comments
             </p>
         {% endif %}
     </div>
 
     <h3>
-        <i class="fa fa-comments" aria-hidden="true"></i>  product.num_comments {{product.comments|length}}
+        <i class="fa fa-comments" aria-hidden="true"></i>  amount of comments {{product.comments|length}}
     </h3>
 
-{% for comment in product.comments %}
+    {% for comment in product.comments %}
         <div class="row post-comment">
             <a name="comment_{{ comment.id }}"></a>
             <h4 class="col-sm-3">
-              {  <strong>{{ comment.author.username }}</strong> {{ 'product.commented_on'|trans }}}
-                {# it's not mandatory to set the timezone in localizeddate(). This is done to
-                   avoid errors when the 'intl' PHP extension is not available and the application
-                   is forced to use the limited "intl polyfill", which only supports UTC and GMT #}
+                <strong>{{ comment.author.username }}</strong> commented on
+                <strong>{{ comment.publishedAt|format_datetime('medium', 'short', '', 'UTC') }}</strong>
             </h4>
             <div class="col-sm-9">
+                {{ comment.content|markdown_to_html}}
             </div>
         </div>
-{% else %}
+    {% else %}
         <div class="post-comment">
-            <p>{{ 'product.no_comments'|trans }}</p>
+            <p>no comments yet</p>
         </div>
     {% endfor %}
 {% endblock %}
 
 {% block sidebar %}
-    {% if is_granted('edit', product) %}
-        <div class="section">
-            <a class="btn btn-lg btn-block btn-success" href="{{ path('admin_product_edit', {id: product.id}) }}">
-                <i class="fa fa-edit" aria-hidden="true"></i> {{ 'action.edit_post'|trans }}
-            </a>
-        </div>
-    {% endif %}
 
-    {# the parent() function includes the contents defined by the parent template
-      ('base.html.twig') for this block ('sidebar'). This is a very convenient way
-      to share common contents in different templates #}
-    {{ parent() }}
 {% endblock %}

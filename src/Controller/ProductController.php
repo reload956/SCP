@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
 use App\Entity\Comment;
 use App\Event\CommentCreatedEvent;
 use App\Form\CommentType;
+use App\Repository\CategoryRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use App\Repository\ProductRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Cache;
@@ -28,6 +30,9 @@ class ProductController extends AbstractController
      * @Route("/", defaults={"page": "1", "_format"="html"}, methods="GET", name="product_index")
      * @Route("/page/{page<[1-9]\d*>}", defaults={"_format"="html"}, methods="GET", name="product_index_paginated")
      * @Cache(smaxage="10")
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @return Response
      */
     public function index(Request $request, PaginatorInterface $paginator): Response
     {
@@ -38,26 +43,37 @@ class ProductController extends AbstractController
         $ProductsQuery=$ProductRepository->createQueryBuilder('p')
             ->where("p.quantity > 0")
             ->getQuery();
+        $CategoryRepository=$em->getRepository(Category::class);
+        $CategoryQuery=$CategoryRepository->findAll();
 
         $Products=$paginator->paginate($ProductsQuery,$request->query
 
             ->getInt('page',1),MaxPage);
 
+
         return $this->render('product/index.html.twig', [
-            'products' => $Products]);
+            'products' => $Products,
+            'categories'=>$CategoryQuery]);
     }
 
     /**
      * @Route("/product/{slug}", methods="GET", name="product_info")
+     * @param Product $product
+     * @return Response
      */
     public function productShow(Product $product): Response
     {
         return $this->render('product/product_show.html.twig', ['product' => $product]);
     }
+
     /**
      * @Route("/comment/{productSlug}/new", methods="POST", name="comment_new")
      * @IsGranted("IS_AUTHENTICATED_FULLY")
-     * @ParamConverter("post", options={"mapping": {"productSlug": "slug"}})
+     * @ParamConverter("product", options={"mapping": {"productSlug": "slug"}})
+     * @param Request $request
+     * @param Product $product
+     * @param EventDispatcherInterface $eventDispatcher
+     * @return Response
      */
     public function commentNew(Request $request, Product $product, EventDispatcherInterface $eventDispatcher): Response
     {
@@ -70,6 +86,7 @@ class ProductController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
+            $comment->setPublishedAt(new \DateTime());
             $em->persist($comment);
             $em->flush();
             $eventDispatcher->dispatch(new CommentCreatedEvent($comment));
@@ -95,6 +112,9 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/search", methods="GET", name="product_search")
+     * @param Request $request
+     * @param ProductRepository $product
+     * @return Response
      */
     public function search(Request $request, ProductRepository $product): Response
     {
@@ -112,7 +132,7 @@ class ProductController extends AbstractController
             $results[] = [
                 'title' => htmlspecialchars($product->getName(), ENT_COMPAT | ENT_HTML5),
                 'date' => $product->getCreatedAt()->format('M d, Y'),
-                'author' => htmlspecialchars($product->getImage(), ENT_COMPAT | ENT_HTML5),
+                'image' => htmlspecialchars($product->getImage(), ENT_COMPAT | ENT_HTML5),
                 'summary' => htmlspecialchars($product->getSummary(), ENT_COMPAT | ENT_HTML5),
                 'url' => $this->generateUrl('product_info', ['slug' => $product->getSlug()]),
             ];
@@ -120,6 +140,33 @@ class ProductController extends AbstractController
 
         return $this->json($results);
     }
+
+
+    /**
+     * @Route("/search/cat/{id}", methods="GET", name="category_search")
+     * @param Request $request
+     * @param Category $category
+     * @param PaginatorInterface $paginator
+     * @return Response
+     */
+    public function catsearch(Request $request, Category $category,PaginatorInterface $paginator): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $foundProducts = $category->getProduct();
+
+        $Products=$paginator->paginate($foundProducts,$request->query
+
+            ->getInt('page',1),MaxPage);
+
+        $CategoryRepository=$em->getRepository(Category::class);
+        $CategoryQuery=$CategoryRepository->findAll();
+
+        return $this->render('product/index.html.twig', [
+        'products' => $Products,'categories'=>$CategoryQuery]);
+    }
+
+
 }
 
 

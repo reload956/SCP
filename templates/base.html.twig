@@ -55,8 +55,9 @@
                         </li>
 
                         <li>
-                            <a href="{{ path('cart') }}"> <i class="fa fa-shopping-cart"></i> Cart</a>
+                            <a href="{{ path('cart_list') }}"><i class="fa fa-shopping-cart" aria-hidden="true"></i> Cart</a>
                         </li>
+
 
 
                         {% if app.user %}
@@ -123,7 +124,7 @@
             <div class="row">
                 <div id="footer-copyright" class="col-md-6">
                     <p>&copy; {{ 'now'|date('Y') }} - The Symfony Project</p>
-                    <p>{{ 'mit_license'|trans }}</p>
+                    <p>mit license</p>
                 </div>
                 <div id="footer-resources" class="col-md-6">
                     <a href="https://symfony.com/blog/" title="Symfony Blog">
@@ -138,7 +139,6 @@
         </div>
     </footer>
 {% endblock %}
-
 {% block javascripts %}
     {{ encore_entry_script_tags('app') }}
 {% endblock %}

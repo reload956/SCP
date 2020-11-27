@@ -35,7 +35,6 @@ class ProductType extends AbstractType
     {
 
         $builder
-            ->add('created_at',DateTimeType::class)
             ->add('name',TextType::class)
             ->add('summary',TextType::class)
             ->add('price',MoneyType::class)

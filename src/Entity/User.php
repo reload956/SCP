@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -59,6 +61,24 @@ class User implements UserInterface
      * @ORM\Column(type="decimal", precision=10, scale=2)
      */
     private $cash;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="user", cascade={"remove"})
+     */
+    private $products;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity=Cart::class, mappedBy="user",orphanRemoval=true, cascade={"persist", "remove"})
+     *
+     */
+    private $cart;
+
+    public function __construct()
+    {
+        $this->cart = new ArrayCollection();
+        $this->products = new ArrayCollection();
+    }
 
 
 
@@ -191,6 +211,70 @@ class User implements UserInterface
     public function setCash(string $cash): self
     {
         $this->cash = $cash;
+
+        return $this;
+    }
+
+    public function getCart(): ?Cart
+    {
+        return $this->cart;
+    }
+
+    public function setCart(?Cart $cart): self
+    {
+        $this->cart = $cart;
+
+        return $this;
+    }
+
+    public function addCart(Cart $cart): self
+    {
+        if (!$this->cart->contains($cart)) {
+            $this->cart[] = $cart;
+            $cart->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCart(Cart $cart): self
+    {
+        if ($this->cart->removeElement($cart)) {
+            // set the owning side to null (unless already changed)
+            if ($cart->getUser() === $this) {
+                $cart->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->removeElement($product)) {
+            // set the owning side to null (unless already changed)
+            if ($product->getUser() === $this) {
+                $product->setUser(null);
+            }
+        }
 
         return $this;
     }

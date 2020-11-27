@@ -6,11 +6,11 @@
     {% for product in products %}
         <article class="well">
             <h2>
-                <td><img src="/home/igor/Docs/SCP/public/uploads/brochures/{{ product.image }}" style="width: 100px;"></td>
-                <a href="{{ path('product_info', {slug: product.slug}) }}" style="margin-right: 40%">
+                <td><img src="/public/uploads/brochures/{{ product.image }}" style="width: 100px;"></td>
+                <a href="{{ path('product_info', {slug: product.slug}) }}">
                     {{ product.name }}
                 </a>
-                <a class="btn btn-primary" type="submit" style="margin-right: 10px">
+                <a href="{{ path('cart_add',{slug: product.slug}) }}"class="btn btn-primary" type="submit" style="position:absolute;right: 40px">
                     <i class="fa fa-money" aria-hidden="true"></i>
                     {{ product.price }}
                 </a>
@@ -20,7 +20,7 @@
             {{ include('product/_product_tags.html.twig') }}
         </article>
     {% else %}
-        <div class="well">{{ 'post.no_posts_found'|trans }}</div>
+        <div class="well">no products found</div>
     {% endfor %}
 
         <div class="navigation text-center">
@@ -29,5 +29,12 @@
 {% endblock %}
 
 {% block sidebar %}
-    {{ parent() }}
+    <h1>Categories</h1>
+        {% for category in categories %}
+            <li>
+                <a href="{{ path('category_search', {id: category.id}) }}" class="btn btn-primary" style="width: 200px">
+                    <i class="fa fa-cart"></i>{{ category.name }}
+                </a>
+            </li>
+        {% endfor %}
 {% endblock %}

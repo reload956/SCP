@@ -3,12 +3,7 @@
 {% block body_id 'admin_post_show' %}
 
 {% block main %}
-    <h1>{{ post.title }}</h1>
-
-    <p class="post-metadata">
-        <span class="metadata"><i class="fa fa-calendar"></i> {{ post.publishedAt|format_datetime('long', 'medium', '', 'UTC') }}</span>
-        <span class="metadata"><i class="fa fa-user"></i> {{ post.author.fullName }}</span>
-    </p>
+    <h1>{{ product.name }}</h1>
 
     <div class="well">
         <p class="m-b-0"><strong>{{ 'label.summary'|trans }}</strong>: {{ post.summary }}</p>

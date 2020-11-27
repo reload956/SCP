@@ -67,6 +67,7 @@ class AdminController extends AbstractController
 
         if ($form->isSubmitted()&& $form->isValid()){
             /** @var UploadedFile $file */
+            $product->setCreatedAt(new \DateTime());
             $file = $form->get('image_form')->getData();
             if (!$file) {
                 $form->get('image_form')->addError(new FormError('Image is required'));
