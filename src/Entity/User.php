@@ -74,10 +74,17 @@ class User implements UserInterface
      */
     private $cart;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Order::class, mappedBy="user",orphanRemoval=true, cascade={"persist", "remove"})
+     *
+     */
+    private $order;
+
     public function __construct()
     {
         $this->cart = new ArrayCollection();
         $this->products = new ArrayCollection();
+        $this->order = new ArrayCollection();
     }
 
 
@@ -273,6 +280,36 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($product->getUser() === $this) {
                 $product->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Order[]
+     */
+    public function getOrder(): Collection
+    {
+        return $this->order;
+    }
+
+    public function addOrder(Order $order): self
+    {
+        if (!$this->order->contains($order)) {
+            $this->order[] = $order;
+            $order->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): self
+    {
+        if ($this->order->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getUser() === $this) {
+                $order->setUser(null);
             }
         }
 

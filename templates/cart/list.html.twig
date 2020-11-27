@@ -59,7 +59,7 @@
             </tbody>
         </table>
         <h3><b>Total price: {{ totalprice| number_format(2) }} rub</b></h3>
-        <a href="{{ path('cart_checkout') }}"><button type="submit" class="btn btn-primary">Check out</button></a>
+        <a href="{{ path('order_new') }}"><button type="submit" class="btn btn-primary">Check out</button></a>
     </div>
     {#{ path('cart_checkout')}#}
     {#{% for product in cart_product %}#}

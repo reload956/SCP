@@ -20,19 +20,6 @@ class CartRepository extends ServiceEntityRepository
         parent::__construct($registry, Cart::class);
     }
 
-    public function findCartByUser(User $user){
-
-        return $this->createQueryBuilder('c')
-            ->innerJoin('c.user', 'u')
-            // ->addSelect('u.id AS user_id')
-            ->andWhere('u.id = :user_id')
-            ->setParameter('user_id', $user->getId())
-            ->getQuery()
-            ->getOneOrNullResult()
-            ;
-
-    }
-
     // /**
     //  * @return Cart[] Returns an array of Cart objects
     //  */

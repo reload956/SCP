@@ -26,6 +26,9 @@ class AdminController extends AbstractController
     /**
      * @Route("/", methods="GET", name="admin_index")
      * @Route("/", methods="GET", name="admin_product_index")
+     * @param Request $request
+     * @param PaginatorInterface $paginator
+     * @return Response
      */
     public function index(Request $request, PaginatorInterface $paginator): Response
     {
@@ -103,7 +106,6 @@ class AdminController extends AbstractController
     }
 
     /**
-     * Finds and displays a Post entity.
      *
      * @Route("/{id<\d+>}", methods="GET", name="admin_product_show")
      */
@@ -114,7 +116,7 @@ class AdminController extends AbstractController
 
 
         return $this->render('admin/product/show.html.twig', [
-            'products' => $product,
+            'product' => $product,
         ]);
     }
 
@@ -122,7 +124,6 @@ class AdminController extends AbstractController
      * Displays a form to edit an existing Post entity.
      *
      * @Route("/{id<\d+>}/edit", methods="GET|POST", name="admin_product_edit")
-     * @IsGranted("edit", subject="post", message="Posts can only be edited by their authors.")
      */
     public function edit(Request $request, Product $product): Response
     {
@@ -138,7 +139,7 @@ class AdminController extends AbstractController
         }
 
         return $this->render('admin/product/edit.html.twig', [
-            'post' => $product,
+            'product' => $product,
             'form' => $form->createView(),
         ]);
     }
@@ -146,8 +147,8 @@ class AdminController extends AbstractController
     /**
      * Deletes a Post entity.
      *
-     * @Route("/{id}/delete", methods="POST", name="admin_post_delete")
-     * @IsGranted("delete", subject="post")
+     * @Route("/{id}/delete", methods="POST", name="admin_product_delete")
+     * @IsGranted("delete", subject="product")
      */
     public function delete(Request $request, Product $product): Response
     {

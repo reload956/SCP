@@ -88,7 +88,7 @@ class CartController extends AbstractController
 
         $cart = $this->getDoctrine()
             ->getRepository(Cart::class)
-            ->findBy(['user'=>$user]);
+            ->findOneBy(['user'=>$user]);
 
         $cart_product = $this->getDoctrine()
             ->getRepository(CartProduct::class)
